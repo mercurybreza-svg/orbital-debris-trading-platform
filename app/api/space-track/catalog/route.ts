@@ -4,7 +4,7 @@ const BASE_URL =
   process.env.SPACE_TRACK_BASE_URL ?? "https://www.space-track.org";
 
 async function loginToSpaceTrack() {
-  const identity = process.env.SPACE_TRACK_IDENTITY;
+  const identity = process.env.SPACE_TRACK_USERNAME;
   const password = process.env.SPACE_TRACK_PASSWORD;
 
   if (!identity || !password) {
