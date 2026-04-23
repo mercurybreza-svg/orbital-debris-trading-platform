@@ -36,6 +36,7 @@ type DebrisAsset = {
   recoverabilityScore: number;
   historicalValueM: number;
   legacyPremiumM: number;
+  holderValueM: number;
   fairValueM: number;
   spreadPct: number;
   status: "ACTIVE" | "WATCH" | "RESTRICTED";
@@ -632,14 +633,6 @@ const legacyDebrisCount = assets.filter(
 
               <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                 <Metric label="Fair Value" value={formatMoney(selected.fairValueM)} />
-
-{selected.marketSegment === "LEGACY_DEBRIS" && (
-  <>
-    <Metric label="Historical Value" value={formatMoney(selected.historicalValueM)} />
-    <Metric label="Legacy Premium" value={formatMoney(selected.legacyPremiumM)} />
-    <Metric label="Holder Value" value={formatMoney(selected.holderValueM)} />
-  </>
-)}
                 <Metric label="Spread" value={`${selected.spreadPct.toFixed(1)}%`} />
                 <Metric label="Altitude" value={`${selected.altitudeKm.toLocaleString()} km`} />
                 <Metric label="RCS" value={selected.rcs} />
