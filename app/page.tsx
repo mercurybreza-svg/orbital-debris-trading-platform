@@ -421,12 +421,16 @@ const filtered = useMemo(() => {
   let base = assets;
 
   if (tab === "payloads") {
-    base = base.filter((a) => a.marketSegment === "ACTIVE_PAYLOAD");
-  }
+  base = base.filter(
+    (a) => a.marketSegment === "ACTIVE_PAYLOAD" && a.orbit === "LEO"
+  );
+}
 
-  if (tab === "inactive") {
-    base = base.filter((a) => a.marketSegment === "NON_ACTIVE_PAYLOAD");
-  }
+if (tab === "inactive") {
+  base = base.filter(
+    (a) => a.marketSegment === "ACTIVE_PAYLOAD" && a.orbit === "MEO"
+  );
+}
 
   if (tab === "legacy") {
     base = base.filter((a) => a.marketSegment === "LEGACY_DEBRIS");
@@ -490,11 +494,11 @@ const filtered = useMemo(() => {
   const median = assets[Math.floor(assets.length / 2)]?.fairValueM ?? 0;
   /* ✅ INSERT HERE */
 const activePayloadCount = assets.filter(
-  (a) => a.marketSegment === "ACTIVE_PAYLOAD"
+  (a) => a.marketSegment === "ACTIVE_PAYLOAD" && a.orbit === "LEO"
 ).length;
 
-const inactivePayloadCount = assets.filter(
-  (a) => a.marketSegment === "NON_ACTIVE_PAYLOAD"
+const meoActivePayloadCount = assets.filter(
+  (a) => a.marketSegment === "ACTIVE_PAYLOAD" && a.orbit === "MEO"
 ).length;
 
 const legacyDebrisCount = assets.filter(
@@ -538,7 +542,7 @@ const legacyDebrisCount = assets.filter(
         : "border-white/20 text-white/60"
     }`}
   >
-    Likely Non-Active Payloads ({inactivePayloadCount})
+  MEO Active Payloads ({meoActivePayloadCount})
   </button>
 
   <button
