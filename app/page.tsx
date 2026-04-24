@@ -428,13 +428,14 @@ const filtered = useMemo(() => {
     (a) => a.marketSegment === "ACTIVE_PAYLOAD" && a.orbit === "LEO"
   );
 }
-
 if (tab === "inactive") {
   base = base.filter(
-    (a) => a.marketSegment === "ACTIVE_PAYLOAD" && a.orbit === "MEO"
+    (a) =>
+      a.marketSegment === "ACTIVE_PAYLOAD" &&
+      a.altitudeKm > 2000 &&
+      a.altitudeKm < 35786
   );
 }
-
   if (tab === "legacy") {
     base = base.filter((a) => a.marketSegment === "LEGACY_DEBRIS");
   }
