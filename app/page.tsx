@@ -370,13 +370,16 @@ function segmentAccent(tab: "payloads" | "inactive" | "legacy") {
   };
 }
 export default function Home() {
-  const [assets, setAssets] = useState<DebrisAsset[]>([]);
-  const [query, setQuery] = useState("");
-  const [selectedId, setSelectedId] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [tab, setTab] = useState<"payloads" | "inactive" | "legacy">("payloads");
-  const theme = segmentAccent(tab);
+const [assets, setAssets] = useState<DebrisAsset[]>([]);
+const [query, setQuery] = useState("");
+const [selectedId, setSelectedId] = useState("");
+const [loading, setLoading] = useState(true);
+const [error, setError] = useState("");
+const [tab, setTab] = useState<"payloads" | "inactive" | "legacy">("payloads");
+
+const [showTradeModal, setShowTradeModal] = useState(false); // ✅ ADD THIS
+
+const theme = segmentAccent(tab);
 const sectionTitle = segmentTitle(tab);
 
   useEffect(() => {
@@ -700,9 +703,12 @@ const legacyDebrisCount = assets.filter(
                 </div>
 
                 <div className="mt-5 grid gap-3">
-                  <button className="rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-black transition hover:bg-emerald-400">
-                    Buy Recovery Rights
-                  </button>
+ <button
+  onClick={() => setShowTradeModal(true)}
+  className="rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-black transition hover:bg-emerald-400"
+>
+  Buy Recovery Rights
+</button>
                   <button className="rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-300 transition hover:bg-red-500/15">
                     Short Disposal Premium
                   </button>
@@ -739,6 +745,37 @@ const legacyDebrisCount = assets.filter(
           </section>
         </div>
       </div>
+              {showTradeModal && (
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+            <div className="bg-zinc-900 border border-white/10 rounded-xl p-6 w-[400px]">
+              <h2 className="text-xl font-semibold mb-4">Trade Module</h2>
+
+              <p className="text-sm text-white/60 mb-4">
+                Coming soon: Bid / Ask / Buy functionality
+              </p>
+
+              <div className="flex gap-2 mb-4">
+                <button className="flex-1 bg-green-600/20 border border-green-500 rounded p-2">
+                  Bid
+                </button>
+                <button className="flex-1 bg-red-600/20 border border-red-500 rounded p-2">
+                  Ask
+                </button>
+                <button className="flex-1 bg-blue-600/20 border border-blue-500 rounded p-2">
+                  Buy
+                </button>
+              </div>
+
+              <button
+                onClick={() => setShowTradeModal(false)}
+                className="w-full border border-white/20 rounded p-2"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
+        
     </main>
   );
 }
