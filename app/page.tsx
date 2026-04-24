@@ -158,7 +158,9 @@ let marketSegment: "ACTIVE_PAYLOAD" | "NON_ACTIVE_PAYLOAD" | "LEGACY_DEBRIS" =
   "ACTIVE_PAYLOAD";
 
 if (objectType === "PAYLOAD") {
-  if (ageYears >= 10 || orbit === "GEO") {
+  if (orbit === "MEO") {
+    marketSegment = "ACTIVE_PAYLOAD";
+  } else if (ageYears >= 10 || orbit === "GEO") {
     marketSegment = "LEGACY_DEBRIS";
   } else if (ageYears >= 4 || recoverabilityScore < 75) {
     marketSegment = "NON_ACTIVE_PAYLOAD";
@@ -167,7 +169,8 @@ if (objectType === "PAYLOAD") {
   }
 } else {
   marketSegment = "LEGACY_DEBRIS";
-}const basePhysicalValue =
+}
+const basePhysicalValue =
   1.1 +
   (rcs === "LARGE" ? 2.2 : rcs === "MEDIUM" ? 1.2 : 0.5) +
   (objectType === "PAYLOAD" ? 1.4 : objectType === "ROCKET BODY" ? 1.0 : 0.7) +
