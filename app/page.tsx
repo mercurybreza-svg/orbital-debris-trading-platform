@@ -828,6 +828,10 @@ const legacyDebrisCount = assets.filter(
       >
         Close
       </button>
-    </div>
-  </div>
+   </div>
+</div>
 )}
+
+</main>
+);
+}
