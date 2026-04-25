@@ -749,36 +749,55 @@ const legacyDebrisCount = assets.filter(
           </section>
         </div>
       </div>
-              {showTradeModal && (
-          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-            <div className="bg-zinc-900 border border-white/10 rounded-xl p-6 w-[400px]">
-              <h2 className="text-xl font-semibold mb-4">Trade Module</h2>
+           {/* TRADE MODAL */}
+{showTradeModal && (
+  <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+    ...
+  </div>
+)}
 
-              <p className="text-sm text-white/60 mb-4">
-                Coming soon: Bid / Ask / Buy functionality
-              </p>
+{/* LAWYER / REGULATORY MODAL */}
+{showLawyerModal && (
+  <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+    <div className="bg-zinc-900 border border-amber-500/20 rounded-xl p-6 w-[420px]">
 
-              <div className="flex gap-2 mb-4">
-                <button className="flex-1 bg-green-600/20 border border-green-500 rounded p-2">
-                  Bid
-                </button>
-                <button className="flex-1 bg-red-600/20 border border-red-500 rounded p-2">
-                  Ask
-                </button>
-                <button className="flex-1 bg-blue-600/20 border border-blue-500 rounded p-2">
-                  Buy
-                </button>
-              </div>
+      <h2 className="text-xl font-semibold mb-4 text-amber-300">
+        Regulatory Review
+      </h2>
 
-              <button
-                onClick={() => setShowTradeModal(false)}
-                className="w-full border border-white/20 rounded p-2"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        )}
+      <p className="text-sm text-white/70 mb-4">
+        Legal clearance required before recovery operations.
+      </p>
+
+      <div className="space-y-2 text-sm">
+        <div className="flex justify-between border-b border-white/10 pb-1">
+          <span>Jurisdiction</span>
+          <span>UNCLEAR</span>
+        </div>
+        <div className="flex justify-between border-b border-white/10 pb-1">
+          <span>Ownership</span>
+          <span>POSSIBLE CLAIM</span>
+        </div>
+        <div className="flex justify-between border-b border-white/10 pb-1">
+          <span>Treaty Risk</span>
+          <span>HIGH</span>
+        </div>
+      </div>
+
+      <button className="w-full mt-5 bg-amber-500 text-black py-2 rounded">
+        Contact Space Counsel (Coming Soon)
+      </button>
+
+      <button
+        onClick={() => setShowLawyerModal(false)}
+        className="w-full mt-2 border border-white/20 rounded py-2"
+      >
+        Close
+      </button>
+
+    </div>
+  </div>
+)}   
 
     </main>
   );
