@@ -377,8 +377,8 @@ const [loading, setLoading] = useState(true);
 const [error, setError] = useState("");
 const [tab, setTab] = useState<"payloads" | "inactive" | "legacy">("payloads");
 
-const [showTradeModal, setShowTradeModal] = useState(false); // ✅ ADD THIS
-
+const [showTradeModal, setShowTradeModal] = useState(false); 
+const [showLawyerModal, setShowLawyerModal] = useState(false);
 const theme = segmentAccent(tab);
 const sectionTitle = segmentTitle(tab);
 
@@ -714,10 +714,14 @@ const legacyDebrisCount = assets.filter(
                   </button>
                   <button className="rounded-xl border border-white/15 bg-black/40 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/5">
                     Add to Structured Watchlist
-                  </button>
-                  <button className="rounded-xl border border-amber-400/25 bg-amber-500/10 px-4 py-3 text-sm font-semibold text-amber-300 transition hover:bg-amber-500/15">
-                    <AlertTriangle className="mr-2 inline h-4 w-4" /> Flag Regulatory Review
-                  </button>
+                  </button>    
+                    <button
+  onClick={() => setShowLawyerModal(true)}
+  className="rounded-xl border border-amber-400/25 bg-amber-500/10 px-4 py-3 text-sm font-semibold text-amber-300 transition hover:bg-amber-500/15"
+>
+  <AlertTriangle className="mr-2 inline h-4 w-4" />
+  Flag Regulatory Review
+</button>
                 </div>
               </div>
             </div>
@@ -775,7 +779,7 @@ const legacyDebrisCount = assets.filter(
             </div>
           </div>
         )}
-        
+
     </main>
   );
 }
