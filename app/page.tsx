@@ -751,54 +751,81 @@ const legacyDebrisCount = assets.filter(
       </div>
            {/* TRADE MODAL */}
 {showTradeModal && (
-  <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-    ...
-  </div>
-)}
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
+    <div className="w-[420px] rounded-xl border border-white/10 bg-zinc-900 p-6 text-white shadow-2xl">
+      <h2 className="mb-2 text-xl font-semibold">Recovery Rights Market</h2>
 
-{/* LAWYER / REGULATORY MODAL */}
-{showLawyerModal && (
-  <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-    <div className="bg-zinc-900 border border-amber-500/20 rounded-xl p-6 w-[420px]">
-
-      <h2 className="text-xl font-semibold mb-4 text-amber-300">
-        Regulatory Review
-      </h2>
-
-      <p className="text-sm text-white/70 mb-4">
-        Legal clearance required before recovery operations.
+      <p className="mb-4 text-sm text-white/60">
+        Coming soon: bid / ask / buy functionality.
       </p>
 
-      <div className="space-y-2 text-sm">
-        <div className="flex justify-between border-b border-white/10 pb-1">
-          <span>Jurisdiction</span>
-          <span>UNCLEAR</span>
-        </div>
-        <div className="flex justify-between border-b border-white/10 pb-1">
-          <span>Ownership</span>
-          <span>POSSIBLE CLAIM</span>
-        </div>
-        <div className="flex justify-between border-b border-white/10 pb-1">
-          <span>Treaty Risk</span>
-          <span>HIGH</span>
+      <div className="mb-4 rounded-lg border border-white/10 bg-black/30 p-3 text-sm">
+        <div>{selected?.name}</div>
+        <div className="text-white/50">
+          Fair Value: {formatMoney(selected?.fairValueM ?? 0)}
         </div>
       </div>
 
-      <button className="w-full mt-5 bg-amber-500 text-black py-2 rounded">
-        Contact Space Counsel (Coming Soon)
+      <div className="mb-4 grid grid-cols-3 gap-2">
+        <button className="rounded border border-green-500 bg-green-600/20 p-2">
+          Bid
+        </button>
+        <button className="rounded border border-red-500 bg-red-600/20 p-2">
+          Ask
+        </button>
+        <button className="rounded border border-blue-500 bg-blue-600/20 p-2">
+          Buy
+        </button>
+      </div>
+
+      <button
+        onClick={() => setShowTradeModal(false)}
+        className="w-full rounded border border-white/20 p-2"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+)}
+
+{showLawyerModal && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
+    <div className="w-[460px] rounded-xl border border-amber-500/20 bg-zinc-900 p-6 text-white shadow-2xl">
+      <h2 className="mb-2 text-xl font-semibold text-amber-300">
+        Orbital Regulatory Review
+      </h2>
+
+      <p className="mb-4 text-sm text-white/60">
+        Legal clearance may be required before recovery operations.
+      </p>
+
+      <div className="mb-4 space-y-2 text-sm">
+        <div className="flex justify-between border-b border-white/10 pb-1">
+          <span>Jurisdiction</span>
+          <span className="text-amber-300">UNCLEAR</span>
+        </div>
+        <div className="flex justify-between border-b border-white/10 pb-1">
+          <span>Ownership</span>
+          <span className="text-amber-300">POSSIBLE CLAIM</span>
+        </div>
+        <div className="flex justify-between border-b border-white/10 pb-1">
+          <span>Treaty Risk</span>
+          <span className="text-red-300">HIGH</span>
+        </div>
+      </div>
+      <button
+        disabled
+        className="mb-3 w-full rounded bg-amber-500/20 p-2 text-amber-200"
+      >
+        Contact Space Counsel — Coming Soon
       </button>
 
       <button
         onClick={() => setShowLawyerModal(false)}
-        className="w-full mt-2 border border-white/20 rounded py-2"
+        className="w-full rounded border border-white/20 p-2"
       >
         Close
       </button>
-
     </div>
   </div>
-)}   
-
-    </main>
-  );
-}
+)}
