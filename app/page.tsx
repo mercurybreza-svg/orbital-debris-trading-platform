@@ -752,8 +752,10 @@ const legacyDebrisCount = assets.filter(
            {/* TRADE MODAL */}
 {showTradeModal && (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
-    <div className="w-[420px] rounded-xl border border-white/10 bg-zinc-900 p-6 text-white shadow-2xl">
-      <h2 className="mb-2 text-xl font-semibold">Recovery Rights Market</h2>
+    <div className="w-[460px] rounded-xl border border-emerald-500/20 bg-zinc-900 p-6 text-white shadow-2xl">
+      <h2 className="mb-2 text-xl font-semibold text-emerald-300">
+        Recovery Rights Market
+      </h2>
 
       <p className="mb-4 text-sm text-white/60">
         Coming soon: bid / ask / buy functionality.
