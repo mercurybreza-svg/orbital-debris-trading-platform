@@ -337,19 +337,20 @@ function Metric({
   );
 }
 
-function segmentTitle(tab: "payloads" | "inactive" | "legacy") {
+function segmentTitle(tab: "payloads" | "inactive" | "legacy" | "asteroid") {
+  if (tab === "asteroid") return "Asteroid Mining Rights Exchange";
   if (tab === "legacy") return "Legacy Orbital Debris Market";
-  if (tab === "inactive") return "Likely Non-Active Payload Market";
+  if (tab === "inactive") return "MEO Active Payload Market";
   return "Active Payload Market";
 }
 
-function segmentAccent(tab: "payloads" | "inactive" | "legacy") {
-  if (tab === "legacy") {
+function segmentAccent(tab: "payloads" | "inactive" | "legacy" | "asteroid") {
+  if (tab === "asteroid") {
     return {
-      border: "border-amber-400/40",
-      bg: "bg-amber-500/10",
-      text: "text-amber-300",
-      subtle: "text-amber-200/70",
+      border: "border-purple-400/40",
+      bg: "bg-purple-500/10",
+      text: "text-purple-300",
+      subtle: "text-purple-200/70",
     };
   }
 
@@ -360,8 +361,16 @@ function segmentAccent(tab: "payloads" | "inactive" | "legacy") {
       text: "text-cyan-300",
       subtle: "text-cyan-200/70",
     };
-  }
 
+  }
+if (tab === "legacy") {
+  return {
+    border: "border-amber-400/40",
+    bg: "bg-amber-500/10",
+    text: "text-amber-300",
+    subtle: "text-amber-200/70",
+  };
+}
   return {
     border: "border-green-400/40",
     bg: "bg-green-500/10",
@@ -375,8 +384,7 @@ const [query, setQuery] = useState("");
 const [selectedId, setSelectedId] = useState("");
 const [loading, setLoading] = useState(true);
 const [error, setError] = useState("");
-const [tab, setTab] = useState<"payloads" | "inactive" | "legacy">("payloads");
-
+const [tab, setTab] = useState<"payloads" | "inactive" | "legacy" | "asteroid">("payloads");
 const [showTradeModal, setShowTradeModal] = useState(false); 
 const [showLawyerModal, setShowLawyerModal] = useState(false);
 const theme = segmentAccent(tab);
@@ -510,8 +518,9 @@ const meoActivePayloadCount = assets.filter(
 
 const legacyDebrisCount = assets.filter(
   (a) => a.marketSegment === "LEGACY_DEBRIS"
-).length;
-  return (
+).length ;
+
+return (
     <main className="min-h-screen bg-black p-5 font-mono text-white md:p-8">
       <div className="mx-auto max-w-7xl space-y-6">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
@@ -527,6 +536,7 @@ const legacyDebrisCount = assets.filter(
   <p className="mt-3 max-w-3xl text-white/65">
     Commodity-style trading UI for active orbital debris, now powered by live Space-Track objects filtered to exclude deorbited inventory.
   </p>
+  </div>
 
   {/* ✅ ADD TABS HERE */}
   <div className="mt-4 flex flex-wrap gap-3">
@@ -562,6 +572,16 @@ const legacyDebrisCount = assets.filter(
   >
     Legacy Orbital Debris ({legacyDebrisCount})
   </button>
+  <button
+  onClick={() => setTab("asteroid")}
+  className={`px-4 py-2 rounded-xl border ${
+    tab === "asteroid"
+      ? "bg-purple-500 text-black border-purple-400"
+      : "border-white/15 text-white/70 hover:bg-white/5"
+  }`}
+>
+  Asteroid Mining Rights
+</button>
 </div>
           </div>
 
@@ -574,9 +594,10 @@ const legacyDebrisCount = assets.filter(
 <Metric label="Legacy Premium" value={formatMoney(selected.legacyPremiumM)} />
 <Metric label="Fair Value" value={formatMoney(selected.fairValueM)} />
           </div>
-        </div>
 
-        <div className="grid gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
+        </div>
+      {tab !== "asteroid" && (
+  <div className="grid gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
           <section className="rounded-3xl border border-white/10 bg-zinc-950 p-4">
             <div className="mb-4 flex items-center gap-2 rounded-2xl border border-white/10 bg-black/50 px-3 py-3">
               <Search className="h-4 w-4 text-white/50" />
@@ -588,37 +609,39 @@ const legacyDebrisCount = assets.filter(
               />
             </div>
 
-            <div className="space-y-3 max-h-[75vh] overflow-auto pr-1">
-              {filtered.map((asset) => (
-                <button
-                  key={asset.id}
-                  onClick={() => setSelectedId(asset.id)}
-                  className={`w-full rounded-2xl border p-4 text-left transition ${
-                    selected.id === asset.id
-                      ? "border-emerald-400/60 bg-emerald-500/10"
-                      : "border-white/10 bg-black/30 hover:border-white/20 hover:bg-black/50"
-                  }`}
-                >
-                  <div className="mb-3 flex items-start justify-between gap-3">
-                    <div>
-                      <div className="text-lg font-semibold text-white">{asset.name}</div>
-                      <div className="mt-1 text-xs text-white/45">{asset.id}</div>
-                    </div>
-                    <div className={`rounded-full border px-2 py-1 text-[11px] ${statusTone(asset.status)}`}>
-                      {asset.status}
-                    </div>
-                  </div>
+           <div className="space-y-3 max-h-[75vh] overflow-auto pr-1">
+  {filtered.map((asset) => (
+    <button
+      key={asset.id}
+      onClick={() => setSelectedId(asset.id)}
+      className={`w-full rounded-2xl border p-4 text-left transition ${
+        selected.id === asset.id
+          ? "border-emerald-400/60 bg-emerald-500/10"
+          : "border-white/10 bg-black/30 hover:border-white/20 hover:bg-black/50"
+      }`}
+    
+    >
+      <div className="mb-3 flex items-start justify-between gap-3">
+        <div>
+          <div className="text-lg font-semibold text-white">{asset.name}</div>
+          <div className="mt-1 text-xs text-white/45">{asset.id}</div>
+        </div>
+        <div className={`rounded-full border px-2 py-1 text-[11px] ${statusTone(asset.status)}`}>
+          {asset.status}
+        </div>
+      </div>
 
-                 <div className="grid grid-cols-2 gap-2 text-sm text-white/70">
-  <div>{asset.objectType}</div>
-  <div>{asset.orbit}</div>
-  <div>{asset.altitudeKm.toLocaleString()} km</div>
-  <div>{formatMoney(asset.fairValueM)}</div>
-  <div className="text-xs text-white/40">{asset.payloadState}</div>
+      <div className="grid grid-cols-2 gap-2 text-sm text-white/70">
+        <div>{asset.objectType}</div>
+        <div>{asset.orbit}</div>
+        <div>{asset.altitudeKm.toLocaleString()} km</div>
+        <div>{formatMoney(asset.fairValueM)}</div>
+        <div className="text-xs text-white/40">{asset.payloadState}</div>
+      </div>
+    </button>
+  ))}
 </div>
-                </button>
-              ))}
-            </div>
+            
           </section>
 
           <section className="space-y-6">
@@ -748,8 +771,21 @@ const legacyDebrisCount = assets.filter(
             </div>
           </section>
         </div>
-      </div>
-           {/* TRADE MODAL */}
+ )}       
+{tab === "asteroid" && (
+  <div className="mt-6 rounded-2xl border border-purple-400/20 bg-zinc-950 p-6">
+    <h2 className="mb-3 text-xl font-semibold text-purple-300">
+      Asteroid Mining Rights Exchange
+    </h2>
+    <p className="mb-4 text-sm text-white/70">
+      Future exchange for revenue stream. Managed by Space Counsel.
+    </p>
+    <div className="flex h-[140px] items-center justify-center rounded-lg border border-dashed border-purple-400/30 text-sm text-purple-300">
+      Future Exchange for Revenue Stream
+    </div>
+  </div>
+)}
+{/* TRADE MODAL */}
 {showTradeModal && (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
     <div className="w-[460px] rounded-xl border border-emerald-500/20 bg-zinc-900 p-6 text-white shadow-2xl">
@@ -761,25 +797,6 @@ const legacyDebrisCount = assets.filter(
         Coming soon: bid / ask / buy functionality.
       </p>
 
-      <div className="mb-4 rounded-lg border border-white/10 bg-black/30 p-3 text-sm">
-        <div>{selected?.name}</div>
-        <div className="text-white/50">
-          Fair Value: {formatMoney(selected?.fairValueM ?? 0)}
-        </div>
-      </div>
-
-      <div className="mb-4 grid grid-cols-3 gap-2">
-        <button className="rounded border border-green-500 bg-green-600/20 p-2">
-          Bid
-        </button>
-        <button className="rounded border border-red-500 bg-red-600/20 p-2">
-          Ask
-        </button>
-        <button className="rounded border border-blue-500 bg-blue-600/20 p-2">
-          Buy
-        </button>
-      </div>
-
       <button
         onClick={() => setShowTradeModal(false)}
         className="w-full rounded border border-white/20 p-2"
@@ -789,7 +806,7 @@ const legacyDebrisCount = assets.filter(
     </div>
   </div>
 )}
-
+{/* LAWYER MODAL */}
 {showLawyerModal && (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
     <div className="w-[460px] rounded-xl border border-amber-500/20 bg-zinc-900 p-6 text-white shadow-2xl">
@@ -801,37 +818,15 @@ const legacyDebrisCount = assets.filter(
         Legal clearance may be required before recovery operations.
       </p>
 
-      <div className="mb-4 space-y-2 text-sm">
-        <div className="flex justify-between border-b border-white/10 pb-1">
-          <span>Jurisdiction</span>
-          <span className="text-amber-300">UNCLEAR</span>
-        </div>
-        <div className="flex justify-between border-b border-white/10 pb-1">
-          <span>Ownership</span>
-          <span className="text-amber-300">POSSIBLE CLAIM</span>
-        </div>
-        <div className="flex justify-between border-b border-white/10 pb-1">
-          <span>Treaty Risk</span>
-          <span className="text-red-300">HIGH</span>
-        </div>
-      </div>
-      <button
-        disabled
-        className="mb-3 w-full rounded bg-amber-500/20 p-2 text-amber-200"
-      >
-        Contact Space Counsel — Coming Soon
-      </button>
-
       <button
         onClick={() => setShowLawyerModal(false)}
         className="w-full rounded border border-white/20 p-2"
       >
         Close
       </button>
-   </div>
-</div>
+    </div>
+  </div>
 )}
-
 </main>
 );
 }
