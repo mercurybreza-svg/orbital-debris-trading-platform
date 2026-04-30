@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = 1800; // 30 minutes
 
 const BASE_URL =
   process.env.SPACE_TRACK_BASE_URL ?? "https://www.space-track.org";
@@ -57,9 +56,9 @@ export async function GET(req: NextRequest) {
 ].join("/");
 
     const upstream = await fetch(`${BASE_URL}/${queryPath}`, {
-      headers: { cookie },
-      cache: "no-store",
-    });
+  headers: { cookie },
+  next: { revalidate: 1800 }, 
+});
 
     if (!upstream.ok) {
       throw new Error(`Space-Track query failed: ${upstream.status}`);
