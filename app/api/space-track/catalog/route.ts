@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 const BASE_URL =
   process.env.SPACE_TRACK_BASE_URL ?? "https://www.space-track.org";
 
@@ -44,14 +47,13 @@ export async function GET(req: NextRequest) {
     const cookie = await loginToSpaceTrack();
 
     const queryPath = [
-      "basicspacedata/query",
-      "class/gp",
-      "predicates/NORAD_CAT_ID,OBJECT_NAME,OBJECT_TYPE,APOGEE,PERIGEE,MEAN_MOTION,RCS_SIZE,DECAY_DATE,LAUNCH_DATE",
-      "decay_date/null-val",
-      "orderby/LAUNCH_DATE desc",
-      `limit/${limit}`,
-      "format/json",
-    ].join("/");
+  "basicspacedata/query",
+  "class/gp",
+  "EPOCH/>now-7",
+  "orderby/NORAD_CAT_ID,EPOCH",
+  `limit/${limit}`,
+  "format/json",
+].join("/");
 
     const upstream = await fetch(`${BASE_URL}/${queryPath}`, {
       headers: { cookie },
