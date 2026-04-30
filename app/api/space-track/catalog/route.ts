@@ -50,7 +50,8 @@ export async function GET(req: NextRequest) {
   "basicspacedata/query",
   "class/gp",
   "EPOCH/>now-7",
-  "orderby/NORAD_CAT_ID,EPOCH",
+  "decay_date/null-val",
+  "orderby/EPOCH desc",
   `limit/${limit}`,
   "format/json",
 ].join("/");
