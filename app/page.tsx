@@ -561,7 +561,7 @@ return (
   </div>
 
   <h1 className="text-3xl font-semibold md:text-5xl">
-    Orbital Debris Trading Platform
+    Orbital Object Commodity EXchange (OOCEX)
   </h1>
 
   <p className="mt-3 max-w-3xl text-white/65">
