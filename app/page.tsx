@@ -29,15 +29,15 @@ type DebrisAsset = {
   name: string;
   objectType: "DEBRIS" | "ROCKET BODY" | "PAYLOAD";
   orbit: "LEO" | "MEO" | "GEO";
-  altitudeKm: number;
+  altitudeKm?: number;          // ✅ make optional
   rcs: "SMALL" | "MEDIUM" | "LARGE";
   riskScore: number;
   congestionScore: number;
-  recoverabilityScore: number;
+  recoverabilityScore: number;    // ✅ make optional
   historicalValueM: number;
   legacyPremiumM: number;
-  holderValueM: number;
-  fairValueM: number;
+  holderValueM: number;   
+  fairValueM: number;    
   spreadPct: number;
   status: "ACTIVE" | "WATCH" | "RESTRICTED";
   payloadState: "ACTIVE" | "NON_ACTIVE" | null;
@@ -268,11 +268,12 @@ function statusTone(status: DebrisAsset["status"]) {
   return "border-red-500/40 bg-red-500/10 text-red-300";
 }
 
-function formatMoney(value: number) {
+function formatMoney(value?: number) {
+  if (typeof value !== "number") return "$0.0M";
   return `$${value.toFixed(1)}M`;
 }
 
-function OrderBook({ fairValue }: { fairValue: number }) {
+function OrderBook({ fairValue = 0 }: { fairValue?: number }) {
   const bids = [
     { px: fairValue - 0.4, qty: 14 },
     { px: fairValue - 0.7, qty: 22 },
@@ -385,54 +386,84 @@ const [selectedId, setSelectedId] = useState("");
 const [loading, setLoading] = useState(true);
 const [error, setError] = useState("");
 const [tab, setTab] = useState<"payloads" | "inactive" | "legacy" | "asteroid">("payloads");
+const [asteroids, setAsteroids] = useState<any[]>([]);
 const [showTradeModal, setShowTradeModal] = useState(false); 
 const [showLawyerModal, setShowLawyerModal] = useState(false);
 const theme = segmentAccent(tab);
 const sectionTitle = segmentTitle(tab);
 
-  useEffect(() => {
-    async function loadAssets() {
-      try {
-        setLoading(true);
-        setError("");
+ useEffect(() => {
+  async function loadAssets() {
+    try {
+      setLoading(true);
+      setError("");
 
-        const response = await fetch("/api/space-track/catalog?limit=10000");
-        const data = await response.json();
+      if (tab === "asteroid") {
+        const asteroidRes = await fetch("/api/asteroids/query?limit=200");
+        const asteroidData = await asteroidRes.json();
 
-        if (!response.ok) {
-          throw new Error(data?.error || "Failed to load catalog");
-        }
+        const mappedAsteroids: DebrisAsset[] = asteroidData.items.map((a: any) => ({
+          id: a.id,
+          name: a.name,
+          altitudeKm: Number(a.moid_au ?? 0) * 149597870.7,
+          rcs: Number(a.diameter_km ?? 0) > 1 ? "LARGE" : "SMALL",
+          riskScore: a.hazardous ? 95 : 40,
+          congestionScore: 10,
+          recoverabilityScore: Math.max(10, 100 - Number(a.moid_au ?? 0) * 100),
+          spreadPct: 1.5,
+          historicalValueM: 0,
+          legacyPremiumM: 0,
+          holderValueM: Number(a.diameter_km ?? 0) * 1_000_000,
+          fairValueM: Number(a.diameter_km ?? 0) * 1_000_000,
+          status: "ACTIVE",
+          payloadState: null,
+          objectType: "ASTEROID",
+          orbit: "AMR",
+          marketSegment: "AMR",
+        }));
 
-        const mapped = (Array.isArray(data.items) ? data.items : [])
-.filter(
-  (item: SpaceTrackItem) =>
-    !item.DECAY_DATE &&
-    ["PAYLOAD", "ROCKET BODY", "DEBRIS"].includes(
-      (item.OBJECT_TYPE || "").toUpperCase()
-    )
-)
-    .map(mapToAsset)
-  .sort((a: DebrisAsset, b: DebrisAsset) => {
-    const scoreA =
-      a.fairValueM + a.congestionScore * 0.03 + a.recoverabilityScore * 0.02;
-    const scoreB =
-      b.fairValueM + b.congestionScore * 0.03 + b.recoverabilityScore * 0.02;
-    return scoreB - scoreA;
-  });
-
-        setAssets(mapped);
-        setSelectedId(mapped[0]?.id ?? "");
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Unknown error");
-      } finally {
-        setLoading(false);
+        setAsteroids(mappedAsteroids);
+        setSelectedId(mappedAsteroids[0]?.id ?? "");
+        return;
       }
-    }
 
-    loadAssets();
-  }, []);
+      const response = await fetch("/api/space-track/catalog?limit=10000");
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data?.error || "Failed to load catalog");
+      }
+
+      const mapped: DebrisAsset[] = (Array.isArray(data.items) ? data.items : [])
+        .filter(
+          (item: SpaceTrackItem) =>
+            !item.DECAY_DATE &&
+            ["PAYLOAD", "ROCKET BODY", "DEBRIS"].includes(
+              (item.OBJECT_TYPE || "").toUpperCase()
+            )
+        )
+        .map(mapToAsset)
+        .sort((a: DebrisAsset, b: DebrisAsset) => {
+          const scoreA =
+            a.fairValueM + a.congestionScore * 0.03 + a.recoverabilityScore * 0.02;
+          const scoreB =
+            b.fairValueM + b.congestionScore * 0.03 + b.recoverabilityScore * 0.02;
+          return scoreB - scoreA;
+        });
+
+      setAssets(mapped);
+      setSelectedId(mapped[0]?.id ?? "");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unknown error");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  loadAssets();
+}, [tab]);
 const filtered = useMemo(() => {
-  let base = assets;
+let base = tab === "asteroid" ? asteroids : assets;
 
   if (tab === "payloads") {
   base = base.filter(
@@ -468,7 +499,7 @@ if (tab === "inactive") {
       .toLowerCase()
       .includes(q);
   });
-}, [assets, query, tab]);
+}, [assets, asteroids, query, tab]);
 
   const selected = filtered.find((asset) => asset.id === selectedId) ?? filtered[0] ?? assets[0] ?? null;
 
@@ -667,7 +698,9 @@ return (
 
               <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                 <Metric label="Fair Value" value={formatMoney(selected.fairValueM)} />
-                <Metric label="Spread" value={`${selected.spreadPct.toFixed(1)}%`} />
+                <Metric label="Spread"
+  value={`${(selected.spreadPct ?? 0).toFixed(1)}%`}
+/>
                 <Metric label="Altitude" value={`${selected.altitudeKm.toLocaleString()} km`} />
                 <Metric label="RCS" value={selected.rcs} />
                 <Metric label="Risk Score" value={`${selected.riskScore}/100`} tone={scoreTone(selected.riskScore)} />
@@ -773,17 +806,30 @@ return (
         </div>
  )}       
 {tab === "asteroid" && (
-  <div className="mt-6 rounded-2xl border border-purple-400/20 bg-zinc-950 p-6">
-    <h2 className="mb-3 text-xl font-semibold text-purple-300">
-      Asteroid Mining Rights Exchange
-    </h2>
-    <p className="mb-4 text-sm text-white/70">
-      Future exchange for revenue stream. Managed by Space Counsel.
-    </p>
-    <div className="flex h-[140px] items-center justify-center rounded-lg border border-dashed border-purple-400/30 text-sm text-purple-300">
-      Future Exchange for Revenue Stream
-    </div>
+<div className="mt-6 rounded-2xl border border-purple-400/20 bg-zinc-950 p-6">
+  <h2 className="mb-3 text-xl font-semibold text-purple-300">
+    Asteroid Mining Rights Exchange
+  </h2>
+
+  <div className="mb-4 text-sm text-white/70">
+    Loaded AMR assets: {asteroids.length}
   </div>
+
+  <div className="grid gap-3">
+    {asteroids.slice(0, 20).map((a) => (
+      <button
+        key={a.id}
+        onClick={() => setSelectedId(a.id)}
+        className="rounded-xl border border-purple-400/20 bg-black/40 p-3 text-left hover:bg-purple-500/10"
+      >
+        <div className="font-semibold text-white">{a.name}</div>
+        <div className="text-xs text-white/50">
+          {a.id} · {a.rcs} · {formatMoney(a.fairValueM)}
+        </div>
+      </button>
+    ))}
+  </div>
+</div>
 )}
 {/* TRADE MODAL */}
 {showTradeModal && (

@@ -55,9 +55,9 @@ export async function GET(req: NextRequest) {
   "format/json",
 ].join("/");
 
-    const upstream = await fetch(`${BASE_URL}/${queryPath}`, {
+ const upstream = await fetch(`${BASE_URL}/${queryPath}`, {
   headers: { cookie },
-  next: { revalidate: 1800 }, 
+  cache: "no-store",
 });
 
     if (!upstream.ok) {
