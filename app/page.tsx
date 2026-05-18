@@ -28,17 +28,21 @@ type DebrisAsset = {
   id: string;
   name: string;
 
-  objectType: "DEBRIS" | "ROCKET BODY" | "PAYLOAD";
+objectType: "DEBRIS" | "ROCKET BODY" | "PAYLOAD" | "ASTEROID";
 
   orbit: "LEO" | "MEO" | "GEO";
 
   altitudeKm?: number;
 
-  rcs: "SMALL" | "MEDIUM" | "LARGE";
+rcs: "SMALL" | "MEDIUM" | "LARGE";
 
-  riskScore: number;
-  congestionScore: number;
-  recoverabilityScore: number;
+asteroidClass?: "C-TYPE" | "S-TYPE" | "M-TYPE" | "UNKNOWN";
+chemicalComposition?: string;
+waterSignal?: "H2O/OH likely" | "Possible hydrated minerals" | "Low/unknown";
+
+riskScore: number;
+congestionScore: number;
+recoverabilityScore: number;
 
   historicalValueM: number;
   legacyPremiumM: number;
@@ -182,6 +186,13 @@ function inferOwnerAndMission(name: string, objectType: string) {
 }
 function inferObjectImage(name: string, objectType: string) {
   const n = name.toUpperCase();
+  if (objectType === "ASTEROID") {
+  return {
+    imageUrl: "/images/asteroid-placeholder.jpg",
+    imageCredit: "OOCEX asteroid mining rights placeholder",
+    imageSource: "AMR placeholder",
+  };
+}
 
   if (n.includes("STARLINK")) {
     return {
@@ -558,6 +569,36 @@ const sectionTitle = segmentTitle(tab);
           objectType: "ASTEROID",
           orbit: "AMR",
           marketSegment: "AMR",
+ imageUrl:
+  a.name.includes("Ceres")
+    ? "/images/ceres-placeholder.jpg"
+    : a.name.includes("Pallas")
+    ? "/images/pallas-placeholder.jpg"
+    : a.name.includes("Vesta")
+    ? "/images/vesta-placeholder.jpg"
+    : a.name.includes("Psyche")
+    ? "/images/psyche-placeholder.jpg"
+    : "/images/asteroid-placeholder.jpg",
+imageCredit: "AMR placeholder imagery",
+imageSource: "Asteroid class placeholder",
+          asteroidClass:
+  a.name.includes("Pallas") || a.name.includes("Ceres")
+    ? "C-TYPE"
+    : a.name.includes("Psyche")
+    ? "M-TYPE"
+    : "S-TYPE",
+
+chemicalComposition:
+  a.name.includes("Psyche")
+    ? "Iron-Nickel metal"
+    : a.name.includes("Ceres")
+    ? "Hydrated silicates, carbon compounds"
+    : "Silicates / mixed minerals",
+
+waterSignal:
+  a.name.includes("Ceres")
+    ? "H2O/OH likely"
+    : "Possible hydrated minerals",
         }));
 
         setAsteroids(mappedAsteroids);
@@ -1010,8 +1051,31 @@ return (
         className="rounded-xl border border-purple-400/20 bg-black/40 p-3 text-left hover:bg-purple-500/10"
       >
         <div className="font-semibold text-white">{a.name}</div>
+        {a.imageUrl && (
+  <img
+    src={a.imageUrl}
+    alt={a.name}
+    className="mt-2 h-28 w-full rounded-lg object-cover"
+  />
+)}
         <div className="text-xs text-white/50">
           {a.id} · {a.rcs} · {formatMoney(a.fairValueM)}
+      <div className="mt-2 grid grid-cols-3 gap-2 text-xs text-white/60">
+  <div>
+    <span className="text-purple-300">Class:</span><br/>
+    {a.asteroidClass ?? "UNKNOWN"}
+  </div>
+
+  <div>
+    <span className="text-purple-300">Composition:</span><br/>
+    {a.chemicalComposition ?? "Unknown"}
+  </div>
+
+  <div>
+    <span className="text-purple-300">Water:</span><br/>
+    {a.waterSignal ?? "Low/unknown"}
+  </div>
+</div>  
         </div>
       </button>
     ))}
