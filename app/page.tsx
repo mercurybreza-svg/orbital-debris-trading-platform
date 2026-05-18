@@ -27,21 +27,61 @@ type SpaceTrackItem = {
 type DebrisAsset = {
   id: string;
   name: string;
+
   objectType: "DEBRIS" | "ROCKET BODY" | "PAYLOAD";
+
   orbit: "LEO" | "MEO" | "GEO";
-  altitudeKm?: number;          // ✅ make optional
+
+  altitudeKm?: number;
+
   rcs: "SMALL" | "MEDIUM" | "LARGE";
+
   riskScore: number;
   congestionScore: number;
-  recoverabilityScore: number;    // ✅ make optional
+  recoverabilityScore: number;
+
   historicalValueM: number;
   legacyPremiumM: number;
-  holderValueM: number;   
-  fairValueM: number;    
+
+  holderValueM: number;
+  fairValueM: number;
+
   spreadPct: number;
+
   status: "ACTIVE" | "WATCH" | "RESTRICTED";
+
   payloadState: "ACTIVE" | "NON_ACTIVE" | null;
-  marketSegment: "ACTIVE_PAYLOAD" | "NON_ACTIVE_PAYLOAD" | "LEGACY_DEBRIS";
+
+  marketSegment:
+    | "ACTIVE_PAYLOAD"
+    | "NON_ACTIVE_PAYLOAD"
+    | "LEGACY_DEBRIS";
+
+  ownerStatus?: "OWNED" | "UNOWNED" | "UNKNOWN";
+owner?: string;
+
+history?: string;
+
+imageUrl?: string;
+imageCredit?: string;
+imageSource?: string;
+
+missionObjective?: string;
+missionStatus?: string;
+
+  massKg?: number;
+
+  sizeClass?: string;
+
+  projectedReentry?: string;
+
+  intrinsicValueM?: number;
+  materialValueM?: number;
+
+  congestionRiskReductionValueM?: number;
+
+  apogeeKm?: number;
+  perigeeKm?: number;
 };
 
 function toNumber(value: number | string | undefined): number {
@@ -99,6 +139,80 @@ function mapObjectType(value?: string): DebrisAsset["objectType"] {
   if (objectType.includes("PAYLOAD")) return "PAYLOAD";
   return "DEBRIS";
 }
+function inferOwnerAndMission(name: string, objectType: string) {
+  const n = name.toUpperCase();
+
+  if (n.includes("STARLINK")) {
+    return {
+      ownerStatus: "OWNED" as const,
+      owner: "SpaceX",
+      missionObjective: "Broadband communications constellation",
+      missionStatus: "Operational or recently active payload",
+      history: "Part of the Starlink communications network.",
+    };
+  }
+
+  if (objectType === "ROCKET BODY") {
+    return {
+      ownerStatus: "UNOWNED" as const,
+      owner: "Launch vehicle remnant",
+      missionObjective: "Launch support / orbital insertion",
+      missionStatus: "Spent rocket body",
+      history: "Residual launch hardware remaining in orbit.",
+    };
+  }
+
+  if (objectType === "DEBRIS") {
+    return {
+      ownerStatus: "UNOWNED" as const,
+      owner: "Unowned debris object",
+      missionObjective: "No active mission",
+      missionStatus: "Fragment / debris",
+      history: "Catalogued anthropogenic debris object.",
+    };
+  }
+
+  return {
+    ownerStatus: "UNKNOWN" as const,
+    owner: "Unknown operator",
+    missionObjective: "Unknown or uncategorized orbital mission",
+    missionStatus: "Catalogued orbital object",
+    history: "Object tracked in Space-Track catalog.",
+  };
+}
+function inferObjectImage(name: string, objectType: string) {
+  const n = name.toUpperCase();
+
+  if (n.includes("STARLINK")) {
+    return {
+      imageUrl: "/images/starlink-placeholder.jpg",
+      imageCredit: "SpaceX / Starlink placeholder",
+      imageSource: "Operator class placeholder",
+    };
+  }
+
+  if (objectType === "ROCKET BODY") {
+    return {
+      imageUrl: "/images/rocket-body-placeholder.jpg",
+      imageCredit: "OOCEX inferred rocket body class",
+      imageSource: "Legacy orbital debris placeholder",
+    };
+  }
+
+  if (objectType === "DEBRIS") {
+    return {
+      imageUrl: "/images/debris-placeholder.jpg",
+      imageCredit: "OOCEX inferred debris class",
+      imageSource: "Legacy orbital debris placeholder",
+    };
+  }
+
+  return {
+    imageUrl: "/images/orbital-object-placeholder.jpg",
+    imageCredit: "OOCEX inferred orbital object class",
+    imageSource: "Active / MEO orbital object placeholder",
+  };
+}
 function mapToAsset(item: SpaceTrackItem): DebrisAsset {
   const apogee = toNumber(item.APOGEE);
   const perigee = toNumber(item.PERIGEE);
@@ -110,6 +224,10 @@ function mapToAsset(item: SpaceTrackItem): DebrisAsset {
 
   const rcs = normalizeRcs(item.RCS_SIZE);
   const objectType = mapObjectType(item.OBJECT_TYPE);
+  const profile = inferOwnerAndMission(item.OBJECT_NAME || "", objectType);
+
+  const image = inferObjectImage(item.OBJECT_NAME || "", objectType);
+
 
   const rcsWeight = rcs === "LARGE" ? 24 : rcs === "MEDIUM" ? 14 : 8;
   const orbitWeight = orbit === "LEO" ? 24 : orbit === "MEO" ? 12 : 6;
@@ -254,6 +372,26 @@ return {
   status,
   payloadState,
   marketSegment,
+ ownerStatus: profile.ownerStatus,
+owner: profile.owner,
+history: profile.history,
+missionObjective: profile.missionObjective,
+missionStatus: profile.missionStatus,
+
+imageUrl: image.imageUrl,
+imageCredit: image.imageCredit,
+imageSource: image.imageSource,
+
+apogeeKm: apogee,
+perigeeKm: perigee,
+
+massKg: undefined,
+sizeClass: rcs,
+projectedReentry: item.DECAY_DATE || "Unknown / not currently projected",
+
+intrinsicValueM: fairValueM,
+materialValueM: Number((fairValueM * 0.22).toFixed(1)),
+congestionRiskReductionValueM: Number((congestionScore * 0.08).toFixed(1)),
 };
 }
 function scoreTone(score: number) {
@@ -695,7 +833,20 @@ return (
                   <div className="mt-1 text-3xl font-semibold text-white">{formatMoney(mark)}</div>
                 </div>
               </div>
+{selected.imageUrl && (
+  <div className="mt-4 overflow-hidden rounded-2xl border border-cyan-900/40 bg-black/40">
+    <img
+      src={selected.imageUrl}
+      alt={selected.name}
+     className="h-40 w-full object-contain bg-black"
+    />
 
+    <div className="flex items-center justify-between border-t border-cyan-900/40 px-4 py-2 text-xs text-cyan-200/70">
+      <span>{selected.imageSource}</span>
+      <span>{selected.imageCredit}</span>
+    </div>
+  </div>
+)}
               <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                 <Metric label="Fair Value" value={formatMoney(selected.fairValueM)} />
                 <Metric label="Spread"
@@ -707,9 +858,45 @@ return (
                 <Metric label="Congestion" value={`${selected.congestionScore}/100`} tone={scoreTone(selected.congestionScore)} />
                 <Metric label="Recoverability" value={`${selected.recoverabilityScore}/100`} tone={scoreTone(selected.recoverabilityScore)} />
                 <Metric label="Expected Edge" value={formatMoney(edge)} tone={edge > 0 ? "text-emerald-300" : "text-red-300"} />
+                  
               </div>
             </div>
+            <div className="grid grid-cols-2 gap-4 mt-4">
 
+  <div className="border border-cyan-900/40 rounded-lg p-3">
+    <div className="text-xs text-zinc-500">OWNER</div>
+    <div className="text-sm text-cyan-100 mt-1">
+      {selected.owner}
+    </div>
+  </div>
+
+  <div className="border border-cyan-900/40 rounded-lg p-3">
+    <div className="text-xs text-zinc-500">MISSION STATUS</div>
+    <div className="text-sm text-cyan-100 mt-1">
+      {selected.missionStatus}
+    </div>
+  </div>
+
+</div>
+<div className="grid grid-cols-2 gap-4 mt-4">
+  <Metric label="Owner" value={selected.owner ?? "Unknown"} />
+  <Metric label="Ownership" value={selected.ownerStatus ?? "UNKNOWN"} />
+  <Metric label="Mission Status" value={selected.missionStatus ?? "Unknown"} />
+  <Metric label="Mission Objective" value={selected.missionObjective ?? "Unknown"} />
+  <Metric label="Apogee" value={`${(selected.apogeeKm ?? 0).toLocaleString()} km`} />
+  <Metric label="Perigee" value={`${(selected.perigeeKm ?? 0).toLocaleString()} km`} />
+  <Metric label="Projected Reentry" value={selected.projectedReentry ?? "Unknown"} />
+  <Metric label="Material Value" value={formatMoney(selected.materialValueM)} />
+</div>
+<div className="mt-4 rounded-2xl border border-cyan-900/40 bg-zinc-950 p-4">
+  <div className="text-xs uppercase tracking-widest text-cyan-500">
+    History
+  </div>
+
+  <div className="mt-2 text-sm leading-7 text-white/70">
+    {selected.history ?? "No historical profile available yet."}
+  </div>
+</div>
             <OrderBook fairValue={selected.fairValueM} />
 
             <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
