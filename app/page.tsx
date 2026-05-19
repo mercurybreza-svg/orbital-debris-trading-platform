@@ -1051,12 +1051,14 @@ return (
         className="rounded-xl border border-purple-400/20 bg-black/40 p-3 text-left hover:bg-purple-500/10"
       >
         <div className="font-semibold text-white">{a.name}</div>
-        {a.imageUrl && (
-  <img
-    src={a.imageUrl}
-    alt={a.name}
-    className="mt-2 h-28 w-full rounded-lg object-cover"
-  />
+       {a.imageUrl && (
+  <div className="mt-2 h-28 w-48 rounded-lg border border-purple-500/20 bg-black/30 flex items-center justify-center">
+    <img
+      src={a.imageUrl}
+      alt={a.name}
+      className="max-h-full max-w-full object-contain"
+    />
+  </div>
 )}
         <div className="text-xs text-white/50">
           {a.id} · {a.rcs} · {formatMoney(a.fairValueM)}
