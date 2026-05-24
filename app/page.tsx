@@ -569,15 +569,98 @@ const sectionTitle = segmentTitle(tab);
           objectType: "ASTEROID",
           orbit: "AMR",
           marketSegment: "AMR",
- imageUrl:
-  a.name.includes("Ceres")
-    ? "/images/ceres-placeholder.jpg"
-    : a.name.includes("Pallas")
-    ? "/images/pallas-placeholder.jpg"
-    : a.name.includes("Vesta")
-    ? "/images/vesta-placeholder.jpg"
-    : a.name.includes("Psyche")
-    ? "/images/psyche-placeholder.jpg"
+imageUrl:
+a.name.includes("Ceres")
+? "/images/ceres-placeholder.jpg"
+
+: a.name.includes("Pallas")
+? "/images/pallas-placeholder.jpg"
+
+: a.name.includes("Vesta")
+? "/images/vesta-placeholder.jpg"
+
+: a.name.includes("Psyche")
+? "/images/psyche-placeholder.jpg"
+
+: a.name.includes("Juno")
+? "/images/juno-placeholder.jpg"
+
+: a.name.includes("Astraea")
+? "/images/astraea-placeholder.jpg"
+
+: a.name.includes("Hebe")
+? "/images/hebe-placeholder.jpg"
+
+: a.name.includes("Iris")
+? "/images/iris-placeholder.jpg"
+
+: a.name.includes("Flora")
+? "/images/flora-placeholder.jpg"
+
+: a.name.includes("Metis")
+? "/images/metis-placeholder.jpg"
+
+: a.name.includes("Hygiea")
+? "/images/hygiea-placeholder.jpg"
+
+: a.name.includes("Parthenope")
+? "/images/parthenope-placeholder.jpg"
+
+: a.name.includes("Victoria")
+? "/images/victoria-placeholder.jpg"
+
+: a.name.includes("Egeria")
+? "/images/egeria-placeholder.jpg"
+
+: a.name.includes("Irene")
+? "/images/irene-placeholder.jpg"
+
+: a.name.includes("Eunomia")
+? "/images/eunomia-placeholder.jpg"
+: a.name.includes("Astraea")
+? "/images/astraea-placeholder.jpg"
+
+: a.name.includes("Hebe")
+? "/images/hebe-placeholder.jpg"
+
+: a.name.includes("Iris")
+? "/images/iris-placeholder.jpg"
+: a.name.includes("Astraea")
+? "/images/astraea-placeholder.jpg"
+
+: a.name.includes("Hebe")
+? "/images/hebe-placeholder.jpg"
+
+: a.name.includes("Iris")
+? "/images/iris-placeholder.jpg"
+
+: a.name.includes("Melpomene")
+? "/images/melpomene-placeholder.jpg"
+: a.name.includes("Astraea")
+? "/images/astraea-placeholder.jpg"
+
+: a.name.includes("Hebe")
+? "/images/hebe-placeholder.jpg"
+
+: a.name.includes("Iris")
+? "/images/iris-placeholder.jpg"
+
+: a.name.includes("Fortuna")
+? "/images/fortuna-placeholder.jpg"
+: a.name.includes("Astraea")
+? "/images/astraea-placeholder.jpg"
+
+: a.name.includes("Hebe")
+? "/images/hebe-placeholder.jpg"
+
+: a.name.includes("Iris")
+? "/images/iris-placeholder.jpg"
+
+: a.name.includes("Massalia")
+? "/images/massalia-placeholder.jpg"
+
+: a.name.includes("Thetis")
+? "/images/thetis-placeholder.jpg"
     : "/images/asteroid-placeholder.jpg",
 imageCredit: "AMR placeholder imagery",
 imageSource: "Asteroid class placeholder",
