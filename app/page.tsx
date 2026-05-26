@@ -588,7 +588,11 @@ if (tab === "asteroid") {
         const asteroidRes = await fetch("/api/asteroids/query?limit=200");
         const asteroidData = await asteroidRes.json();
 
-        const mappedAsteroids: DebrisAsset[] = asteroidData.items.map((a: any) => ({
+       const asteroidItems = Array.isArray(asteroidData.items)
+  ? asteroidData.items
+  : [];
+
+const mappedAsteroids: DebrisAsset[] = asteroidItems.map((a: any) => ({
           id: a.id,
           name: a.name,
           altitudeKm: Number(a.moid_au ?? 0) * 149597870.7,
