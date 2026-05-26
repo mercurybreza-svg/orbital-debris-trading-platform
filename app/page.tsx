@@ -585,12 +585,12 @@ if (tab === "supersync") {
 }
 
 if (tab === "asteroid") {
-        const asteroidRes = await fetch("/api/asteroids/query?limit=200");
-        const asteroidData = await asteroidRes.json();
+  const asteroidRes = await fetch("/api/asteroids/query?limit=200");
+  const asteroidData = await asteroidRes.json();
 
-       const asteroidItems = Array.isArray(asteroidData.items)
-  ? asteroidData.items
-  : [];
+  const asteroidItems = Array.isArray(asteroidData.items)
+    ? asteroidData.items
+    : [];
 
 const mappedAsteroids: DebrisAsset[] = asteroidItems.map((a: any) => ({
           id: a.id,
