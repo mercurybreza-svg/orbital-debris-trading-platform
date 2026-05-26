@@ -487,14 +487,17 @@ function Metric({
   );
 }
 
-function segmentTitle(tab: "payloads" | "inactive" | "legacy" | "asteroid") {
+function segmentTitle(tab: "payloads" | "inactive" | "legacy" | "supersync" | "asteroid") {
   if (tab === "asteroid") return "Asteroid Mining Rights Exchange";
   if (tab === "legacy") return "Legacy Orbital Debris Market";
   if (tab === "inactive") return "MEO Active Payload Market";
+  if (tab === "supersync") return "Super Sync Orbital Objects";
   return "Active Payload Market";
 }
 
-function segmentAccent(tab: "payloads" | "inactive" | "legacy" | "asteroid") {
+function segmentAccent(
+  tab: "payloads" | "inactive" | "legacy" | "supersync" | "asteroid"
+) {
   if (tab === "asteroid") {
     return {
       border: "border-purple-400/40",
@@ -503,6 +506,14 @@ function segmentAccent(tab: "payloads" | "inactive" | "legacy" | "asteroid") {
       subtle: "text-purple-200/70",
     };
   }
+  if (tab === "supersync") {
+  return {
+    border: "border-yellow-400/40",
+    bg: "bg-yellow-500/10",
+    text: "text-yellow-300",
+    subtle: "text-yellow-200/70",
+  };
+}
 
   if (tab === "inactive") {
     return {
@@ -534,7 +545,7 @@ const [query, setQuery] = useState("");
 const [selectedId, setSelectedId] = useState("");
 const [loading, setLoading] = useState(true);
 const [error, setError] = useState("");
-const [tab, setTab] = useState<"payloads" | "inactive" | "legacy" | "asteroid">("payloads");
+const [tab, setTab] = useState<"payloads" | "inactive" | "legacy" | "supersync" | "asteroid"> ("payloads");
 const [asteroids, setAsteroids] = useState<any[]>([]);
 const [showTradeModal, setShowTradeModal] = useState(false); 
 const [showLawyerModal, setShowLawyerModal] = useState(false);
@@ -546,8 +557,34 @@ const sectionTitle = segmentTitle(tab);
     try {
       setLoading(true);
       setError("");
+if (tab === "supersync") {
+  const response = await fetch(
+    "/api/space-track/catalog?limit=10000"
+  );
 
-      if (tab === "asteroid") {
+  const data = await response.json();
+
+  const superSyncItems = data.items.filter((item: any) => {
+    const apo =
+      Number(
+        item.APOGEE ??
+        item.APOAPSIS ??
+        item.APAPSIS ??
+        0
+      );
+
+    return apo >= 35000;
+  });
+
+  const mappedSuperSync = superSyncItems.map(mapToAsset);
+
+  setAssets(mappedSuperSync);
+  setSelectedId(mappedSuperSync[0]?.id ?? "");
+
+  return;
+}
+
+if (tab === "asteroid") {
         const asteroidRes = await fetch("/api/asteroids/query?limit=200");
         const asteroidData = await asteroidRes.json();
 
@@ -689,12 +726,12 @@ waterSignal:
         return;
       }
 
-      const response = await fetch("/api/space-track/catalog?limit=10000");
-      const data = await response.json();
+   const response = await fetch("/api/space-track/catalog?limit=10000");
+const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data?.error || "Failed to load catalog");
-      }
+if (!response.ok) {
+  throw new Error(data?.error || "Failed to load catalog");
+}
 
       const mapped: DebrisAsset[] = (Array.isArray(data.items) ? data.items : [])
         .filter(
@@ -785,15 +822,40 @@ if (tab === "inactive") {
     );
   }
 
-  if (!selected) {
-    return (
-      <main className="min-h-screen bg-black p-6 font-mono text-white">
-        <div className="mx-auto max-w-5xl rounded-3xl border border-white/10 bg-zinc-950 p-6 text-white/70">
-          No active objects returned from Space-Track.
-        </div>
-      </main>
-    );
-  }
+if (!loading && !selected) {
+  return (
+    <main className="min-h-screen bg-black p-8 text-white">
+      <h1 className="text-4xl font-bold">
+        Orbital Object Commodity EXchange (OOCEX)
+      </h1>
+
+      <div className="mt-6 flex flex-wrap gap-3">
+        <button onClick={() => setTab("payloads")} className="rounded-lg border border-white/20 px-4 py-2">
+          Active Payloads
+        </button>
+
+        <button onClick={() => setTab("inactive")} className="rounded-lg border border-white/20 px-4 py-2">
+          MEO Active Payloads
+        </button>
+
+        <button onClick={() => setTab("legacy")} className="rounded-lg border border-white/20 px-4 py-2">
+          Legacy Orbital Debris
+        </button>
+
+        <button onClick={() => setTab("asteroid")} className="rounded-lg border border-purple-400 px-4 py-2 text-purple-300">
+          Asteroid Mining Rights
+        </button>
+        <button onClick={() => setTab("supersync")} className="rounded-lg border border-yellow-400 px-4 py-2 text-yellow-300">
+  Super Sync Orbital Objects
+</button>
+      </div>
+
+      <div className="mt-8 rounded-2xl border border-white/10 p-6">
+        No active objects returned from Space-Track.
+      </div>
+    </main>
+  );
+}
 
   const mark = selected.fairValueM * (1 + selected.spreadPct / 100 / 2);
   const edge = selected.fairValueM * (selected.recoverabilityScore / 100) - selected.fairValueM * 0.42;
@@ -866,12 +928,23 @@ return (
     Legacy Orbital Debris ({legacyDebrisCount})
   </button>
   <button
+  onClick={() => setTab("supersync")}
+  className={`px-4 py-2 rounded-lg border ${
+    tab === "supersync"
+      ? "bg-yellow-500/10 text-yellow-300 border-yellow-400"
+: "border-white/20 text-white/60"
+  }`}
+>
+  Super Sync Orbital Objects
+</button>
+  <button
   onClick={() => setTab("asteroid")}
   className={`px-4 py-2 rounded-xl border ${
     tab === "asteroid"
       ? "bg-purple-500 text-black border-purple-400"
       : "border-white/15 text-white/70 hover:bg-white/5"
   }`}
+
 >
   Asteroid Mining Rights
 </button>
@@ -905,7 +978,7 @@ return (
            <div className="space-y-3 max-h-[75vh] overflow-auto pr-1">
   {filtered.map((asset) => (
     <button
-      key={asset.id}
+      key={asset.id ?? asset.name}
       onClick={() => setSelectedId(asset.id)}
       className={`w-full rounded-2xl border p-4 text-left transition ${
         selected.id === asset.id
@@ -927,7 +1000,11 @@ return (
       <div className="grid grid-cols-2 gap-2 text-sm text-white/70">
         <div>{asset.objectType}</div>
         <div>{asset.orbit}</div>
-        <div>{asset.altitudeKm.toLocaleString()} km</div>
+       <div>
+  {asset.altitudeKm != null
+    ? `${asset.altitudeKm.toLocaleString()} km`
+    : "Altitude unknown"}
+</div>
         <div>{formatMoney(asset.fairValueM)}</div>
         <div className="text-xs text-white/40">{asset.payloadState}</div>
       </div>
@@ -976,7 +1053,14 @@ return (
                 <Metric label="Spread"
   value={`${(selected.spreadPct ?? 0).toFixed(1)}%`}
 />
-                <Metric label="Altitude" value={`${selected.altitudeKm.toLocaleString()} km`} />
+                <Metric
+  label="Altitude"
+  value={
+    selected.altitudeKm != null
+      ? `${selected.altitudeKm.toLocaleString()} km`
+      : "Altitude unknown"
+  }
+/>
                 <Metric label="RCS" value={selected.rcs} />
                 <Metric label="Risk Score" value={`${selected.riskScore}/100`} tone={scoreTone(selected.riskScore)} />
                 <Metric label="Congestion" value={`${selected.congestionScore}/100`} tone={scoreTone(selected.congestionScore)} />
@@ -1037,8 +1121,7 @@ return (
                   </p>
                   <p>
                     <span className="font-semibold text-white">Why it trades:</span> higher congestion creates a premium for
-                    removal rights, while {selected.rcs.toLowerCase()} radar cross section affects tracking confidence and
-                    execution complexity.
+                    removal rights, while {(selected.rcs ?? "unknown").toLowerCase()} radar cross section affects tracking confidence and execution complexity.
                   </p>
                   <p>
                     <span className="font-semibold text-white">Suggested action:</span> {edge > 0 ? "accumulate below fair value and stage recovery execution" : "keep on watch; current mark already prices most upside"}.

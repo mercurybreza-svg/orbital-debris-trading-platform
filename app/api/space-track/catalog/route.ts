@@ -45,7 +45,9 @@ export async function GET(req: NextRequest) {
 
     const cookie = await loginToSpaceTrack();
 
-    const queryPath = [
+ const minAltitude = Number(searchParams.get("minAltitude") ?? 0);
+
+const queryPath = [
   "basicspacedata/query",
   "class/gp",
   "EPOCH/>now-7",
@@ -55,6 +57,7 @@ export async function GET(req: NextRequest) {
   "format/json",
 ].join("/");
 
+
  const upstream = await fetch(`${BASE_URL}/${queryPath}`, {
   headers: { cookie },
   cache: "no-store",
@@ -63,9 +66,11 @@ export async function GET(req: NextRequest) {
     if (!upstream.ok) {
       throw new Error(`Space-Track query failed: ${upstream.status}`);
     }
+const rows = await upstream.json();
 
-    const rows = await upstream.json();
-    return NextResponse.json({ items: rows });
+return NextResponse.json({
+  items: rows,
+});
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Unknown proxy error";
