@@ -19,7 +19,7 @@ export async function GET(req: Request) {
     url.searchParams.set("limit", String(limit));
 
     const res = await fetch(url.toString(), {
-      next: { revalidate: 1800 },
+     cache: "no-store",
     });
 
     if (!res.ok) {
@@ -33,10 +33,13 @@ export async function GET(req: Request) {
       throw new Error("SBDB response missing fields/data");
     }
 
-    const fields = data.fields;
-    const rows = data.data;
+ const fields = data.fields;
 
-    const items = rows.map((row: any[]) => {
+const rows = Array.isArray(data.data)
+  ? data.data
+  : [];
+
+const items = rows.map((row: any[]) => {
       const obj: any = {};
       fields.forEach((f: string, i: number) => {
         obj[f] = row[i];

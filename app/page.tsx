@@ -585,12 +585,19 @@ if (tab === "supersync") {
 }
 
 if (tab === "asteroid") {
-  const asteroidRes = await fetch("/api/asteroids/query?limit=200");
-  const asteroidData = await asteroidRes.json();
+const asteroidRes = await fetch("/api/asteroids/query?limit=200", {
+  cache: "no-store",
+});
 
-  const asteroidItems = Array.isArray(asteroidData.items)
-    ? asteroidData.items
-    : [];
+const asteroidData = await asteroidRes.json();
+
+const asteroidItems = Array.isArray(asteroidData.items)
+  ? asteroidData.items
+  : [];
+
+if (asteroidItems.length === 0) {
+  setError("AMR feed returned no asteroid items. Try refresh.");
+}
 
 const mappedAsteroids: DebrisAsset[] = asteroidItems.map((a: any) => ({
           id: a.id,
