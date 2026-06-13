@@ -418,8 +418,8 @@ function statusTone(status: DebrisAsset["status"]) {
 }
 
 function formatMoney(value?: number) {
-  if (typeof value !== "number") return "$0.0M";
-  return `$${value.toFixed(1)}M`;
+  if (typeof value !== "number") return "Ξ0.0M";
+return `Ξ${value.toFixed(1)}M`;
 }
 
 function OrderBook({ fairValue = 0 }: { fairValue?: number }) {
@@ -588,9 +588,9 @@ if (tab === "asteroid") {
 const asteroidRes = await fetch("/api/asteroids/query?limit=200", {
   cache: "no-store",
 });
-
+// 
 const asteroidData = await asteroidRes.json();
-
+// 
 const asteroidItems = Array.isArray(asteroidData.items)
   ? asteroidData.items
   : [];
