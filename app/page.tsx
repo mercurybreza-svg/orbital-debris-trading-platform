@@ -421,7 +421,10 @@ function formatMoney(value?: number) {
   if (typeof value !== "number") return "Ξ0.0M";
 return `Ξ${value.toFixed(1)}M`;
 }
-
+function trackingUrl(asset: DebrisAsset) {
+  if (!asset?.id) return "#";
+  return `https://www.n2yo.com/satellite/?s=${asset.id}`;
+}
 function OrderBook({ fairValue = 0 }: { fairValue?: number }) {
   const bids = [
     { px: fairValue - 0.4, qty: 14 },
@@ -998,16 +1001,25 @@ return (
       }`}
     
     >
-      <div className="mb-3 flex items-start justify-between gap-3">
-        <div>
-          <div className="text-lg font-semibold text-white">{asset.name}</div>
-          <div className="mt-1 text-xs text-white/45">{asset.id}</div>
-        </div>
-        <div className={`rounded-full border px-2 py-1 text-[11px] ${statusTone(asset.status)}`}>
-          {asset.status}
-        </div>
-      </div>
+<div>
+  <div className="text-lg font-semibold text-white">
+    {asset.name}
+  </div>
 
+  <div className="mt-1 text-xs text-white/45">
+    {asset.id}
+  </div>
+
+<a
+  href={trackingUrl(asset)}
+  target="_blank"
+  rel="noopener noreferrer"
+  onClick={(e) => e.stopPropagation()}
+  className="mt-2 inline-flex items-center rounded border border-cyan-500/40 bg-cyan-500/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-cyan-300 transition hover:border-cyan-300 hover:bg-cyan-500/20 hover:text-cyan-100"
+>
+  🛰 Orbital Tracking
+</a>
+</div>
       <div className="grid grid-cols-2 gap-2 text-sm text-white/70">
         <div>{asset.objectType}</div>
         <div>{asset.orbit}</div>
