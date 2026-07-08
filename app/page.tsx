@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
+import { spaceObjectImages } from "./lib/spaceObjectImages";
 import {
   AlertTriangle,
   ArrowDownRight,
@@ -364,7 +365,11 @@ const holderValueM =
   marketSegment === "LEGACY_DEBRIS"
     ? Number((fairValueM + legacyPremiumM * 0.35).toFixed(1))
     : fairValueM;
-
+const registryImage =
+  getRegistryImage({
+    id: String(item.NORAD_CAT_ID ?? ""),
+    name: item.OBJECT_NAME || "",
+  }) ?? image.imageUrl;
 return {
   id: String(item.NORAD_CAT_ID ?? "UNKNOWN"),
   name: item.OBJECT_NAME || "Unnamed Object",
@@ -389,7 +394,7 @@ history: profile.history,
 missionObjective: profile.missionObjective,
 missionStatus: profile.missionStatus,
 
-imageUrl: image.imageUrl,
+imageUrl: registryImage,
 imageCredit: image.imageCredit,
 imageSource: image.imageSource,
 
@@ -425,6 +430,22 @@ function trackingUrl(asset: DebrisAsset) {
   if (!asset?.id) return "#";
   return `https://www.n2yo.com/satellite/?s=${asset.id}`;
 }
+function getRegistryImage(asset: { id: string; name: string }) {
+  // First try the NORAD Catalog ID
+  if (spaceObjectImages[asset.id]) {
+    return spaceObjectImages[asset.id];
+  }
+
+  // Then fall back to the spacecraft name
+  const key = Object.keys(spaceObjectImages).find((k) =>
+    asset.name.toUpperCase().includes(k.toUpperCase())
+  );
+
+  return key ? spaceObjectImages[key] : undefined;
+}
+
+
+
 function OrderBook({ fairValue = 0 }: { fairValue?: number }) {
   const bids = [
     { px: fairValue - 0.4, qty: 14 },
@@ -1058,14 +1079,16 @@ return (
                 </div>
               </div>
 {selected.imageUrl && (
-  <div className="mt-4 overflow-hidden rounded-2xl border border-cyan-900/40 bg-black/40">
-    <img
-      src={selected.imageUrl}
-      alt={selected.name}
-     className="h-40 w-full object-contain bg-black"
-    />
+  <div className="mt-4 overflow-hidden rounded-xl border border-cyan-900/40 bg-black">
+    <div className="mx-auto flex h-[340px] w-[340px] items-center justify-center">
+      <img
+        src={selected.imageUrl}
+        alt={selected.name}
+        className="h-full w-full object-contain"
+      />
+    </div>
 
-    <div className="flex items-center justify-between border-t border-cyan-900/40 px-4 py-2 text-xs text-cyan-200/70">
+    <div className="flex items-center justify-between border-t border-cyan-900/40 px-3 py-2 text-xs text-cyan-300/70">
       <span>{selected.imageSource}</span>
       <span>{selected.imageCredit}</span>
     </div>
