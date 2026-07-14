@@ -13,6 +13,7 @@ import {
   ShieldAlert,
   Wallet,
 } from "lucide-react";
+import { deorbitCemetery } from "./lib/deorbitCemetery";
 
 type SpaceTrackItem = {
   NORAD_CAT_ID?: number | string;
@@ -53,16 +54,19 @@ recoverabilityScore: number;
 
   spreadPct: number;
 
-  status: "ACTIVE" | "WATCH" | "RESTRICTED";
+status: "ACTIVE" | "WATCH" | "RESTRICTED" | "DEORBITED";
 
   payloadState: "ACTIVE" | "NON_ACTIVE" | null;
 
-  marketSegment:
-    | "ACTIVE_PAYLOAD"
-    | "NON_ACTIVE_PAYLOAD"
-    | "LEGACY_DEBRIS";
+marketSegment:
+  | "ACTIVE_PAYLOAD"
+  | "NON_ACTIVE_PAYLOAD"
+  | "LEGACY_DEBRIS"
+  | "SUPER_SYNC"
+  | "AMR"
+  | "DEORBIT_CEMETERY";
 
-  ownerStatus?: "OWNED" | "UNOWNED" | "UNKNOWN";
+ownerStatus?: "OWNED" | "UNOWNED" | "UNKNOWN" | "HISTORICAL";
 owner?: string;
 
 history?: string;
@@ -511,16 +515,34 @@ function Metric({
   );
 }
 
-function segmentTitle(tab: "payloads" | "inactive" | "legacy" | "supersync" | "asteroid") {
-  if (tab === "asteroid") return "Asteroid Mining Rights Exchange";
-  if (tab === "legacy") return "Legacy Orbital Debris Market";
-  if (tab === "inactive") return "MEO Active Payload Market";
-  if (tab === "supersync") return "Super Sync Orbital Objects";
-  return "Active Payload Market";
+function segmentTitle(
+  tab:
+    | "payloads"
+    | "inactive"
+    | "legacy"
+    | "supersync"
+    | "asteroid"
+    | "cemetery"
+) {
+ if (tab === "payloads") return "LEO Active Payload Market";
+if (tab === "inactive") return "MEO Active Payload Market";
+if (tab === "legacy") return "Legacy Orbital Debris Market";
+if (tab === "supersync") return "Super Sync Orbital Objects";
+if (tab === "asteroid") return "Asteroid Mining Rights Exchange";
+if (tab === "cemetery") return "Deorbit Cemetery";
+
+return "LEO Active Payload Market";
+
 }
 
 function segmentAccent(
-  tab: "payloads" | "inactive" | "legacy" | "supersync" | "asteroid"
+  tab:
+    | "payloads"
+    | "inactive"
+    | "legacy"
+    | "supersync"
+    | "asteroid"
+    | "cemetery"
 ) {
   if (tab === "asteroid") {
     return {
@@ -556,12 +578,22 @@ if (tab === "legacy") {
     subtle: "text-amber-200/70",
   };
 }
+
+if (tab === "cemetery") {
   return {
-    border: "border-green-400/40",
-    bg: "bg-green-500/10",
-    text: "text-green-300",
-    subtle: "text-green-200/70",
+    border: "border-slate-300/40",
+    bg: "bg-slate-500/10",
+    text: "text-slate-200",
+    subtle: "text-slate-300/70",
   };
+}
+
+return {
+  border: "border-green-400/40",
+  bg: "bg-green-500/10",
+  text: "text-green-300",
+  subtle: "text-green-200/70",
+};
 }
 export default function Home() {
 const [assets, setAssets] = useState<DebrisAsset[]>([]);
@@ -569,7 +601,14 @@ const [query, setQuery] = useState("");
 const [selectedId, setSelectedId] = useState("");
 const [loading, setLoading] = useState(true);
 const [error, setError] = useState("");
-const [tab, setTab] = useState<"payloads" | "inactive" | "legacy" | "supersync" | "asteroid"> ("payloads");
+const [tab, setTab] = useState<
+  | "payloads"
+  | "inactive"
+  | "legacy"
+  | "supersync"
+  | "asteroid"
+  | "cemetery"
+>("payloads");
 const [asteroids, setAsteroids] = useState<any[]>([]);
 const [showTradeModal, setShowTradeModal] = useState(false); 
 const [showLawyerModal, setShowLawyerModal] = useState(false);
@@ -605,6 +644,54 @@ if (tab === "supersync") {
   setAssets(mappedSuperSync);
   setSelectedId(mappedSuperSync[0]?.id ?? "");
 
+  return;
+}
+if (tab === "cemetery") {
+  const cemeteryAssets: DebrisAsset[] = deorbitCemetery.map((item) => ({
+    id: item.id,
+    name: item.name,
+    objectType: item.objectType,
+    orbit: item.orbit,
+    altitudeKm: 0,
+    rcs: "LARGE",
+
+    riskScore: 0,
+    congestionScore: 0,
+    recoverabilityScore: 0,
+
+    historicalValueM: item.historicalValueM,
+    legacyPremiumM: item.estimatedLostValueM,
+    holderValueM: item.intrinsicValueM,
+    fairValueM: item.estimatedLostValueM,
+
+    spreadPct: 0,
+    status: "DEORBITED",
+    payloadState: null,
+    marketSegment: "DEORBIT_CEMETERY",
+
+    ownerStatus: "HISTORICAL",
+    owner: "NASA",
+    history: item.mission,
+    missionObjective: item.mission,
+    missionStatus: `Deorbited — ${item.decayDate}`,
+
+    imageUrl: item.imageUrl,
+    imageCredit: item.imageCredit,
+    imageSource: item.imageSource,
+
+    apogeeKm: 0,
+    perigeeKm: 0,
+    massKg: undefined,
+    sizeClass: "LARGE",
+    projectedReentry: item.decayDate,
+
+    intrinsicValueM: item.intrinsicValueM,
+    materialValueM: item.intrinsicValueM,
+    congestionRiskReductionValueM: 0,
+  }));
+
+  setAssets(cemeteryAssets);
+  setSelectedId(cemeteryAssets[0]?.id ?? "");
   return;
 }
 
@@ -880,6 +967,16 @@ if (!loading && !selected) {
         <button onClick={() => setTab("asteroid")} className="rounded-lg border border-purple-400 px-4 py-2 text-purple-300">
           Asteroid Mining Rights
         </button>
+        
+        <button onClick={() => setTab("cemetery")}className={`rounded-xl border px-4 py-3 text-sm transition ${
+            tab === "cemetery"
+      ?  "border-red-400 bg-red-500/20 text-red-200"
+      : "border-red-900/40 bg-black/30 text-red-300 hover:border-red-500/50"
+  }`}
+>
+  Deorbit Cemetery
+</button>
+        
         <button onClick={() => setTab("supersync")} className="rounded-lg border border-yellow-400 px-4 py-2 text-yellow-300">
   Super Sync Orbital Objects
 </button>
@@ -938,7 +1035,7 @@ return (
         : "border-white/20 text-white/60"
     }`}
   >
-    Active Payloads ({activePayloadCount})
+    LEO Active Payloads ({activePayloadCount})
   </button>
 
   <button
@@ -981,7 +1078,20 @@ return (
   }`}
 
 >
+
   Asteroid Mining Rights
+  
+</button>
+<button
+  type="button"
+  onClick={() => setTab("cemetery")}
+  className={`rounded-lg border px-4 py-2 transition ${
+    tab === "cemetery"
+      ? "border-red-400 bg-red-500/20 text-red-200"
+      : "border-white/20 bg-black/30 text-white/75 hover:border-red-500/50 hover:text-red-200"
+  }`}
+>
+  Deorbit Cemetery
 </button>
 </div>
           </div>
@@ -1020,8 +1130,10 @@ return (
           ? "border-emerald-400/60 bg-emerald-500/10"
           : "border-white/10 bg-black/30 hover:border-white/20 hover:bg-black/50"
       }`}
+      
     
     >
+      
 <div>
   <div className="text-lg font-semibold text-white">
     {asset.name}
