@@ -595,8 +595,30 @@ return {
   subtle: "text-green-200/70",
 };
 }
+function isPlaceholderImage(imageUrl?: string) {
+  if (!imageUrl) return true;
+
+  const url = imageUrl.toLowerCase();
+
+  return (
+    url.includes("placeholder") ||
+    url.includes("/images/generic/") ||
+    url.includes("orbital-object-placeholder")
+  );
+}
 export default function Home() {
 const [assets, setAssets] = useState<DebrisAsset[]>([]);
+
+const [resolvedImages, setResolvedImages] = useState<
+  Record<
+    string,
+    {
+      imageUrl: string;
+      imageSource?: string;
+      imageCredit?: string;
+    }
+  >
+>({});
 const [query, setQuery] = useState("");
 const [selectedId, setSelectedId] = useState("");
 const [loading, setLoading] = useState(true);
@@ -923,6 +945,79 @@ if (tab === "inactive") {
 }, [assets, asteroids, query, tab]);
 
   const selected = filtered.find((asset) => asset.id === selectedId) ?? filtered[0] ?? assets[0] ?? null;
+  const resolvedImage = selected
+  ? resolvedImages[selected.id]
+  : undefined;
+
+const displayImageUrl =
+  resolvedImage?.imageUrl ??
+  selected?.imageUrl;
+
+const displayImageSource =
+    resolvedImage?.imageSource ??
+    selected?.imageSource;
+
+const displayImageCredit =
+    resolvedImage?.imageCredit ??
+    selected?.imageCredit;
+  
+  useEffect(() => {
+  if (!selected) return;
+
+  // Already has a local/registry image
+if (
+  selected.imageUrl &&
+  !isPlaceholderImage(selected.imageUrl)
+) {
+  return;
+}
+
+  // Already resolved during this session
+  if (resolvedImages[selected.id]) return;
+
+  let cancelled = false;
+
+  async function resolveSelectedImage() {
+    try {
+      const params = new URLSearchParams({
+        name: selected.name,
+        norad: selected.id,
+      });
+
+      const response = await fetch(
+        `/api/object-image?${params.toString()}`
+      );
+
+      if (!response.ok) return;
+
+      const result = await response.json();
+
+      if (cancelled || !result.imageUrl) return;
+
+      setResolvedImages((current) => ({
+        ...current,
+        [selected.id]: {
+          imageUrl: result.imageUrl,
+          imageSource: result.source ?? undefined,
+          imageCredit: result.credit ?? undefined,
+        },
+      }));
+    } catch (error) {
+      console.error("Automatic image lookup failed:", error);
+    }
+  }
+
+  resolveSelectedImage();
+
+  return () => {
+    cancelled = true;
+  };
+}, [
+  selected?.id,
+  selected?.name,
+  selected?.imageUrl,
+  resolvedImages,
+]);
 
   if (loading) {
     return (
@@ -1194,15 +1289,15 @@ return (
   <div className="mt-4 overflow-hidden rounded-xl border border-cyan-900/40 bg-black">
     <div className="mx-auto flex h-[340px] w-[340px] items-center justify-center">
       <img
-        src={selected.imageUrl}
+        src={displayImageUrl}
         alt={selected.name}
         className="h-full w-full object-contain"
       />
     </div>
 
     <div className="flex items-center justify-between border-t border-cyan-900/40 px-3 py-2 text-xs text-cyan-300/70">
-      <span>{selected.imageSource}</span>
-      <span>{selected.imageCredit}</span>
+      <span>{displayImageSource}</span>
+      <span>{displayImageCredit}</span>
     </div>
   </div>
 )}

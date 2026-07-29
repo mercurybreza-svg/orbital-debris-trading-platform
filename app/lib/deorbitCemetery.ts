@@ -24,7 +24,7 @@ export const deorbitCemetery: CemeteryObject[] = [
     historicalValueM: 18,
     intrinsicValueM: 32,
     estimatedLostValueM: 50,
-    imageUrl: "https://spaceflightnow.com/wp-content/uploads/2016/04/tankjett.jpg",
+    imageUrl: "file:///C:/Users/mercu/Desktop/Orbital%20Objects/shuttle-external-tank.jpg",
     imageCredit: "NASA",
     imageSource: "NASA",
   },
