@@ -433,7 +433,11 @@ export async function GET(request: NextRequest) {
   }
 
  try {
-  const jonathanResult = await resolveObjectImage(name, noradId);
+ const ooiiResult = await resolveObjectImage(name, noradId);
+
+if (ooiiResult) {
+  return NextResponse.json(ooiiResult);
+} const jonathanResult = await resolveObjectImage(name, noradId);
 
   if (jonathanResult) {
     return NextResponse.json(jonathanResult);

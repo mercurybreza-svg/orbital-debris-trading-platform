@@ -11,7 +11,7 @@ export const spaceObjectImages: Record<string, string> = {
   "SOLRAD 11A/B": "/images/real/solrad-11a.jpg",
 
   // fleet / family images
-  "STARLINK": "/images/fleet/starlink.jpg",
+  "STARLINK": "/images/starlink-placeholder.jpg",
   "ONEWEB": "/images/fleet/oneweb.jpg",
   "IRIDIUM": "/images/fleet/iridium.jpg",
   "GPS": "/images/fleet/gps.jpg",

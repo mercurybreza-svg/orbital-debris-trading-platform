@@ -14,18 +14,36 @@ export type CemeteryObject = {
 };
 
 export const deorbitCemetery: CemeteryObject[] = [
-  {
-    id: "STS-ET",
-    name: "Space Shuttle External Tank",
+{
+  id: "STS-ET",
+  name: "Space Shuttle External Tank",
+  objectType: "ROCKET BODY",
+  orbit: "LEO",
+  decayDate: "Multiple missions, 1981–2011",
+  mission:
+    "Space Shuttle external propellant tank discarded during ascent.",
+  historicalValueM: 8.5,
+  intrinsicValueM: 2.2,
+  estimatedLostValueM: 10.7,
+
+  imageUrl: "/images/cemetery/shuttle-external-tank.jpg",
+  imageCredit: "NASA",
+  imageSource: "OOCEX curated archive",
+}
+ , {
+    id: "ISS NiH2 Battery",
+    name: "ISS NiH2 Battery",
     objectType: "ROCKET BODY",
     orbit: "LEO",
-    decayDate: "Multiple missions, 1981–2011",
-    mission: "Space Shuttle external propellant tank discarded during ascent.",
-    historicalValueM: 18,
-    intrinsicValueM: 32,
-    estimatedLostValueM: 50,
-    imageUrl: "file:///C:/Users/mercu/Desktop/Orbital%20Objects/shuttle-external-tank.jpg",
-    imageCredit: "NASA",
-    imageSource: "NASA",
+    decayDate: "2021",
+  mission:
+    "ISS Nickel-Hydrogen Battery deorbited for lithium battery upgrade.",
+  historicalValueM: 8.5,
+  intrinsicValueM: 2.2,
+  estimatedLostValueM: 10.7,
+
+  imageUrl: "/images/cemetery/ISS-NiH2-Battery.jpg",
+  imageCredit: "NASA",
+  imageSource: "OOCEX Curated Archive",
   },
 ];

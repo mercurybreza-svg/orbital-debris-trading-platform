@@ -1,14 +1,22 @@
-import { resolveCuratedObjectImage } from "./providers/curatedImageProvider";
+import { getObjectProfile } from "./getObjectProfile";
 import { resolveJonathanReference } from "./providers/jonathanProvider";
 
 export async function resolveObjectImage(
   name: string,
   noradId?: string | null
 ) {
-  const curatedResult = resolveCuratedObjectImage(name, noradId);
+  const profile = getObjectProfile(name, noradId);
 
-  if (curatedResult) {
-    return curatedResult;
+  if (profile.imageUrl) {
+    return {
+      imageUrl: profile.imageUrl,
+      title: profile.canonicalName,
+      source: profile.source,
+      credit: null,
+      matchType: profile.imageType,
+      confidence: profile.confidence,
+      noradId: noradId ?? null,
+    };
   }
 
   const jonathanResult = resolveJonathanReference(name, noradId);
