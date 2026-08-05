@@ -29,8 +29,8 @@ export const deorbitCemetery: CemeteryObject[] = [
   imageUrl: "/images/cemetery/shuttle-external-tank.jpg",
   imageCredit: "NASA",
   imageSource: "OOCEX curated archive",
-}
- , {
+},
+ {
     id: "ISS NiH2 Battery",
     name: "ISS NiH2 Battery",
     objectType: "ROCKET BODY",
