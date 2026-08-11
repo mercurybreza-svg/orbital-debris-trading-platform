@@ -5,10 +5,10 @@ export type FamilyImageEntry = {
 };
 
 export const FAMILY_IMAGES: Record<string, FamilyImageEntry> = {
-   Iridium: {
-    imageUrl: "/images/fleet/Iridium.jpg",
-    source: "Iridium family representative",
-  },
+   IRIDIUM: {
+  imageUrl: "/images/fleet/iridium.jpg",
+  source: "OOCEX Iridium family representative",
+},
    TRANSIT: {
     imageUrl: "/images/real/transit-4a.jpg",
     source: "Transit family representative",
@@ -25,16 +25,16 @@ export const FAMILY_IMAGES: Record<string, FamilyImageEntry> = {
     imageUrl: "/images/fleet/noaa.jpg",
     source: "NOAA family representative",
   },
-   ONEWEB: {
-    imageUrl: "/images/fleet/ONEWEB.jpg",
-    source: "ONEWEB family representative",
-  },
-  LANDSAT: {
-    imageUrl: "/images/fleet/LANDSAT.jpg",
-    source: "LANDSAT family representative",
-  },
-  GOES: {
-    imageUrl: "/images/fleet/GOES.jpg",
-    source: "GOES family representative",
-    },      
+ONEWEB: {
+  imageUrl: "/images/fleet/oneweb.jpg",
+  source: "OOCEX OneWeb family representative",
+},
+LANDSAT: {
+  imageUrl: "/images/fleet/landsat.jpg",
+  source: "OOCEX Landsat family representative",
+},
+ GOES: {
+  imageUrl: "/images/fleet/goes.jpg",
+  source: "OOCEX GOES family representative",
+},     
 };

@@ -42,8 +42,8 @@ export const deorbitCemetery: CemeteryObject[] = [
   intrinsicValueM: 2.2,
   estimatedLostValueM: 10.7,
 
-  imageUrl: "/images/cemetery/ISS-NiH2-Battery.jpg",
-  imageCredit: "NASA",
-  imageSource: "OOCEX Curated Archive",
+imageUrl: "/images/cemetery/iss-nih2-battery.jpg",
+imageCredit: "NASA",
+imageSource: "OOCEX Curated Archive",
   },
 ];
